@@ -8,8 +8,9 @@ import org.apache.hadoop.mapred.JobConf
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.functions.get_json_object
+import com.hbase.utils.Constants
 
-object WriteToHbase {
+object WriteToHbase extends Constants {
   def rowKeyCreation(df: org.apache.spark.sql.Dataset[String], rowKeys: Seq[String], json: Seq[String]) = {
     var temp = df.toDF
 
@@ -50,16 +51,17 @@ object WriteToHbase {
       })
     val res = df1.toJSON
 
-    val rowKeysmatchingJson = Seq("_unit_id", "relevance")
+    val columnmatchingJson = Seq("_unit_id", "relevance","product_image","product_title")
     val rowKeys = Seq("rowKey1", "rowKey2")
-    val columnsFromDataFrame = Seq("value")
-    val columnFamily = Seq("i:value")
-    val hbaseDf = rowKeyCreation(res, rowKeys, rowKeysmatchingJson)
+     val columnNames = Seq("rowKey1", "rowKey2","productImage","productTitle")
+    val columnsFromDataFrame = Seq("value","productImage","productTitle")
+    val columnFamily = Seq("i:value","i:productImage","i:productTitle")
+    val hbaseDf = rowKeyCreation(res, columnNames, columnmatchingJson)
 
     val conf = org.apache.hadoop.hbase.HBaseConfiguration.create();
-    conf.set("hbase.zookeeper.quorum", "127.0.0.1");
-    conf.set("hbase.zookeeper.property.clientPort", "2181")
-    conf.set(TableOutputFormat.OUTPUT_TABLE, "emp")
+    conf.set("hbase.zookeeper.quorum", HBASE_ZOOKEEPER_QUORUM);
+    conf.set("hbase.zookeeper.property.clientPort", HBASE_CLIENT_PORT)
+    conf.set(TableOutputFormat.OUTPUT_TABLE, HBASE_WRITE_TABLE)
 
     val hbaseConfig = new JobConf(conf)
     hbaseConfig.setOutputFormat(classOf[TableOutputFormat])
