@@ -45,7 +45,7 @@ object WriteToHbase extends Constants {
 
       .load("data.csv")
 
-    val df1 = df.filter(f => !f.anyNull)
+    val df1 = df
       .filter(f => {
         f.getAs("_unit_id").toString.forall(_.isDigit)
       })
@@ -65,8 +65,12 @@ object WriteToHbase extends Constants {
 
     val hbaseConfig = new JobConf(conf)
     hbaseConfig.setOutputFormat(classOf[TableOutputFormat])
-
-    hbaseDf.filter(f => !f.anyNull).rdd.map(f => convert(f, rowKeys, columnsFromDataFrame, columnFamily)).saveAsHadoopDataset(hbaseConfig)
-
+val hbaseDf1=hbaseDf.limit(1000)
+val hbaseDf2=hbaseDf.except(hbaseDf1)
+    hbaseDf1.filter(f => !f.anyNull).rdd.map(f => convert(f, rowKeys, columnsFromDataFrame, columnFamily)).saveAsHadoopDataset(hbaseConfig)
+Thread.sleep(10000)
+hbaseDf2.filter(f => !f.anyNull).rdd.map(f => convert(f, rowKeys, columnsFromDataFrame, columnFamily)).saveAsHadoopDataset(hbaseConfig)
+    
+    
   }
 }
