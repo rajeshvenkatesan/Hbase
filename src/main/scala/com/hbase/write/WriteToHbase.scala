@@ -11,7 +11,7 @@ import org.apache.spark.sql.functions.get_json_object
 import com.hbase.utils.Constants
 
 object WriteToHbase extends Constants {
-  def rowKeyCreation(df: org.apache.spark.sql.Dataset[String], rowKeys: Seq[String], json: Seq[String]) = {
+  def dataFrameCreation(df: org.apache.spark.sql.Dataset[String], rowKeys: Seq[String], json: Seq[String]):org.apache.spark.sql.DataFrame = {
     var temp = df.toDF
 
     for ((i, j) <- rowKeys.zip(json)) {
@@ -56,7 +56,7 @@ object WriteToHbase extends Constants {
      val columnNames = Seq("rowKey1", "rowKey2","productImage","productTitle")
     val columnsFromDataFrame = Seq("value","productImage","productTitle")
     val columnFamily = Seq("i:value","i:productImage","i:productTitle")
-    val hbaseDf = rowKeyCreation(res, columnNames, columnmatchingJson)
+    val hbaseDf = dataFrameCreation(res, columnNames, columnmatchingJson)
 
     val conf = org.apache.hadoop.hbase.HBaseConfiguration.create();
     conf.set("hbase.zookeeper.quorum", HBASE_ZOOKEEPER_QUORUM);
@@ -65,11 +65,8 @@ object WriteToHbase extends Constants {
 
     val hbaseConfig = new JobConf(conf)
     hbaseConfig.setOutputFormat(classOf[TableOutputFormat])
-val hbaseDf1=hbaseDf.limit(1000)
-val hbaseDf2=hbaseDf.except(hbaseDf1)
-    hbaseDf1.filter(f => !f.anyNull).rdd.map(f => convert(f, rowKeys, columnsFromDataFrame, columnFamily)).saveAsHadoopDataset(hbaseConfig)
-Thread.sleep(10000)
-hbaseDf2.filter(f => !f.anyNull).rdd.map(f => convert(f, rowKeys, columnsFromDataFrame, columnFamily)).saveAsHadoopDataset(hbaseConfig)
+
+    hbaseDf.filter(f => !f.anyNull).rdd.map(f => convert(f, rowKeys, columnsFromDataFrame, columnFamily)).saveAsHadoopDataset(hbaseConfig)
     
     
   }

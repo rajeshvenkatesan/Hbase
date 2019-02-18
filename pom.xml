@@ -15,9 +15,17 @@
 		<scala.version>2.11</scala.version>
 		<scala.library.version>2.11.0</scala.library.version>
 		<hbase.version>1.2.4</hbase.version>
+		<log4j.version>1.2.17</log4j.version>
 	</properties>
 
 	<dependencies>
+	<!-- https://mvnrepository.com/artifact/log4j/log4j -->
+<dependency>
+    <groupId>log4j</groupId>
+    <artifactId>log4j</artifactId>
+    <version>${log4j.version}</version>
+</dependency>
+	
 		<dependency>
 			<groupId>org.codehaus.janino</groupId>
 			<artifactId>commons-compiler</artifactId>
@@ -84,30 +92,7 @@
 	</dependencies>
 	<build>
 		<plugins>
-			<plugin>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<version>2.8.2</version>
-				<executions>
-					<execution>
-						<id>deploy-file</id>
-						<phase>deploy</phase>
-						<goals>
-							<goal>deploy-file</goal>
-						</goals>
-
-						<configuration>
-							<files>
-
-								src/main/scala/hackerrank/*
-
-
-							</files>
-
-						</configuration>
-
-					</execution>
-				</executions>
-			</plugin>
+			
 			<plugin>
 				<!-- https://mvnrepository.com/artifact/org.scala-tools/maven-scala-plugin -->
 
